@@ -20,10 +20,9 @@ def current_reference(Y1,Y2,cout, pixel):
     Y2 = np.int32(Y2)
 
     Mvector, Ry = _block.Intercoding(Y1,Y2,pixel,macro)
-
     DCT_Ry = _block.DCT(Ry,pixel)
     IDCT_Ry = _block.IDCT(DCT_Ry,pixel)
-
+  
     D_img = _block.Reconstruct(Y2,IDCT_Ry, Mvector,pixel)
     
     return D_img
@@ -61,6 +60,7 @@ def readfile():
             # V1 = current_reference(V2,V1,cout,pix/2)
 
 
+
         # # Stack the YUV channels together, crop the actual resolution, convert to
         # # floating point for later calculations, and apply the standard biases
         # YUV = np.dstack((Y1, U1, V1))[:height, :width, :].astype(np.float)
@@ -80,9 +80,11 @@ def readfile():
         # print(Y1)
         cv2.imwrite('image' + str(cout) + ".png", Y1)
         # cv2.imshow('image', Y1)
+        
+        
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
             
 
     cv2.destroyAllWindows()
