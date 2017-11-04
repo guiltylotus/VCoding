@@ -51,7 +51,7 @@ class Block():
         if (bottom_right_y > width):
             bottom_right_y  = width
 
-        return(Y2[top_left_x:bottom_right_x, top_left_y: bottom_right_y])
+        return(Y2[top_left_x:bottom_right_x, top_left_y: bottom_right_y], top_left_x, top_left_y)
 
         
     #check result of motionES
@@ -76,10 +76,10 @@ class Block():
         for i in range(0,height,pix):
             for j in range(0,width,pix):
                 
-                Ys = self.searchArea(Y2,i,j,pix,macro)
+                Ys, top_left_x, top_left_y = self.searchArea(Y2,i,j,pix,macro)
 
                 res = self.motionEs(Y1[i:i+pix, j:j+pix], Ys, pix)
-                Mvector.append((res[0] -i, res[1]-j))  
+                Mvector.append((res[0] + top_left_x -i, res[1] + top_left_y-j))  
                 # self.motionES_check(Y1[i:i+pix, j:j+pix], Ys, pix, res)
                 newY = self.motionCompensation(Y1[i:i+pix, j:j+pix], Ys[res[0]: res[0]+pix, res[1]:res[1]+pix])
                 residual_Y[i:i+pix, j:j+pix] = newY[:,:]
