@@ -5,14 +5,14 @@ class Search():
     # the difference between 2 block
     def distance_MAD(self, Yc, Yr):
         
-        MAD = 0
-        height, width = np.shape(Yr) # take shape
+        # MAD = 0
+        # height, width = np.shape(Yr) # take shape
 
-        for i in range(height):
-            for j in range(width):
-                MAD += abs(Yc[i,j] - Yr[i,j] )
+        # for i in range(height):
+        #     for j in range(width):
+        #         MAD += abs(Yc[i,j] - Yr[i,j] )
 
-        return MAD
+        return np.sum(np.abs(Yc - Yr))
 
 
     # Yc current illuminance

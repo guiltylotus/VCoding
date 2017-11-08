@@ -27,11 +27,13 @@ def current_reference(Y1,Y2,cout, pixel):
     
     return D_img
 
+import timeit
 #read YUV file 
 def readfile():
 
     cout = 0
     while True:
+        start_time = timeit.default_timer()
         cout += 1
         
         stream.seek(cout*size)   #skip all value before cout*size
@@ -85,9 +87,8 @@ def readfile():
 
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
+        print (timeit.default_timer() - start_time)
             
-
-    cv2.destroyAllWindows()
 
 
 

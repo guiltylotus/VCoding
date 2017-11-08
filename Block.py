@@ -19,16 +19,16 @@ class Block():
 
     # residual_block = Current_block - Reference_block 
     def motionCompensation(self, Yc, Yr):
-        Y = np.zeros_like(Yc)
+        # Y = np.zeros_like(Yc)
 
-        height, width = np.shape(Yc)
+        # height, width = np.shape(Yc)
 
         # Y = Yc[:,:] - Yr[:,:]
-        for i in range(height):
-            for j in range(width):
-                Y[i,j] = Yc[i,j] - Yr[i,j]
+        # for i in range(height):
+        #     for j in range(width):
+        #         Y[i,j] = Yc[i,j] - Yr[i,j]
 
-        return(Y)
+        return Yc - Yr
 
     # the area Y1 will be searched in  # (x,y) is top_left of Y1
     def searchArea(self,Y2, x, y, pix, macro):
@@ -89,7 +89,21 @@ class Block():
         return([Mvector,residual_Y])
         
         # output : motion vector (of current block -> reference block ) , residual image
-    
+#_______________________________________Quantise____________________________________________
+
+
+    def quantise(self, a, qb = 2):
+        """
+            return quantisation of 'a' matrix with QB = 10
+        """ 
+        # print a
+        return np.floor(a/qb)
+
+    def rescale(self, a, qb =2):
+        """
+            rescale = re-quantise
+        """
+        return (a * qb)    
 #_______________________________________DCT_______________________________________________________________________________________________
 
     # Count C of matrix A
@@ -141,6 +155,7 @@ class Block():
 
         print("DCT Done!")
         return Yimg
+        return self.quantise(Yimg)
 
 #_______________________________________Reconstruct_______________________________________________________________________________________
 
@@ -213,3 +228,4 @@ class Block():
 
         print("IDCT Done!")
         return Yimg
+        return self.rescale(Yimg)
