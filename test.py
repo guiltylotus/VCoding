@@ -40,9 +40,7 @@ def current_reference(Y1,Y2,cout, pixel, prob_residual, prob_motion, codebook_re
         prob_motion[vec] = 0 if vec not in prob_motion else prob_motion[vec] + 1
     if codebook_motion:
         compressed += "".join(entropyCoding(codebook_motion, Mvector)) 
-    # print Ry
     DCT_Ry = _block.DCT(Ry,pixel)
-    # print DCT_Ry.dtype
 
     Rys = blockshaped(DCT_Ry, pixel, pixel)
 
@@ -61,10 +59,7 @@ def current_reference(Y1,Y2,cout, pixel, prob_residual, prob_motion, codebook_re
 
         IRys[i] = Dequantised_Ry
     IRys = mergeshaped(IRys, height, width)
-    # print DCT_Ry
     IDCT_Ry = _block.IDCT(IRys,pixel)
-    # print IDCT_Ry.dtype
-    # print IDCT_Ry
     D_img = _block.Reconstruct(Y2,IDCT_Ry, Mvector,pixel)
     
     return D_img
@@ -107,9 +102,9 @@ def readfile():
             codebook_motion = doHuffman(prob_motion)
         while True:
             cout += 1
-            if cout < 6:
+            if cout < 2:
                 continue
-            if cout > 7:
+            if cout > 3:
                 break
             stream.seek(cout*int(size))   #skip all value before cout*size
             
@@ -140,10 +135,6 @@ def readfile():
     with open('huffman_motion.txt', 'w') as f:
         json.dump(swapDict(codebook_motion), f)
 
-
-stream = open('xyz.yuv', 'rb')  #rb to open non-text file
-outstream = open('res.yuv', 'wb')
-readfile()
 
 def decodeFrame(ref, Mvector, residual):
     blocks = []
@@ -186,4 +177,8 @@ def decode(height, width, pix):
         Yr, Ur, Vr = Y, U, V       
 
 
+# Read file
+stream = open('xyz.yuv', 'rb')  #rb to open non-text file
+outstream = open('res.yuv', 'wb')
+readfile()
 decode(height, width, pix)

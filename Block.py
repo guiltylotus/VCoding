@@ -19,15 +19,6 @@ class Block():
 
     # residual_block = Current_block - Reference_block 
     def motionCompensation(self, Yc, Yr):
-        # Y = np.zeros_like(Yc)
-
-        # height, width = np.shape(Yc)
-
-        # Y = Yc[:,:] - Yr[:,:]
-        # for i in range(height):
-        #     for j in range(width):
-        #         Y[i,j] = Yc[i,j] - Yr[i,j]
-
         return Yc - Yr
 
     # the area Y1 will be searched in  # (x,y) is top_left of Y1
@@ -92,14 +83,14 @@ class Block():
 #_______________________________________Quantise____________________________________________
 
 
-    def quantise(self, a, qb = 2):
+    def quantise(self, a, qb = 20):
         """
             return quantisation of 'a' matrix with QB = 10
         """ 
-        # print a
+        print ('eee' , np.floor(a/qb))
         return np.floor(a/qb)
 
-    def rescale(self, a, qb =2):
+    def rescale(self, a, qb = 20):
         """
             rescale = re-quantise
         """
