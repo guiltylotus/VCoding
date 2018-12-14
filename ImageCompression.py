@@ -20,6 +20,12 @@ def current_reference(Y1,cout, pixel):
 
     DCT_Ry = _block.DCT(Y1,pixel)
     DCT_Ry_Quantised = _block.quantise(DCT_Ry)
+    # Zigzac
+    # Reorder
+    # Huffman
+    # DeHuff
+    # reverseReorder
+    # DeZigzac
     DCT_Ry_Requantised = _block.rescale(DCT_Ry_Quantised)
     IDCT_Ry = _block.IDCT(DCT_Ry_Requantised,pixel)
   
@@ -87,4 +93,9 @@ def readfile():
 
 stream = open('xyz.yuv', 'rb')  #rb to open non-text file
 readfile()
+
+Encode :
++ zigzac
++ reorder
++ huffman
 
