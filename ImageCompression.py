@@ -20,12 +20,6 @@ def current_reference(Y1,cout, pixel):
 
     DCT_Ry = _block.DCT(Y1,pixel)
     DCT_Ry_Quantised = _block.quantise(DCT_Ry)
-    # Zigzac
-    # Reorder
-    # Huffman
-    # DeHuff
-    # reverseReorder
-    # DeZigzac
     DCT_Ry_Requantised = _block.rescale(DCT_Ry_Quantised)
     IDCT_Ry = _block.IDCT(DCT_Ry_Requantised,pixel)
   
@@ -34,14 +28,17 @@ def current_reference(Y1,cout, pixel):
     return IDCT_Ry
 
 import timeit
-#read YUV file 
+#read YUV file
+outstream = cv2.VideoWriter('res.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (width,height))
+
 def readfile():
 
     cout = 0
     while True:
         start_time = timeit.default_timer()
         cout += 1
-        
+        # if (cout > 10000):
+        #     break
         stream.seek(cout*size)   #skip all value before cout*size
 
         # Load the Y (luminance) data from the stream
@@ -67,7 +64,7 @@ def readfile():
         # # floating point for later calculations, and apply the standard biases
         # YUV = np.dstack((Y1, U1, V1))[:height, :width, :].astype(np.float)
         YUV = np.dstack((Y1, U2, V2))[:height, :width, :].astype(np.float)
-        # YUV[:, :, 0]  = YUV[:, :, 0]  - 16   # Offset Y by 16
+        # YUV[:, :, 0]  = YUV[:, :, 0]  - 16   # Offset Y by 16s
         YUV[:, :, 1:] = YUV[:, :, 1:] - 128  # Offset UV by 128
         # # YUV conversion matrix from ITU-R BT.601 version (SDTV)
         # # Note the swapped R and B planes!
@@ -83,19 +80,11 @@ def readfile():
         # cv2.imwrite('YRimage' + str(cout) + ".png", Y)
         # cv2.imwrite('URimage' + str(cout) + ".png", U)
         # cv2.imwrite('VRimage' + str(cout) + ".png", V)
-        print('Y2 ', Y2)
-        print('Y1 ', Y1)
         cv2.imwrite('BGRimage' + str(cout) + ".png", BGR)
-        print (timeit.default_timer() - start_time)
-            
-
+        outstream.write(BGR)
 
 
 stream = open('xyz.yuv', 'rb')  #rb to open non-text file
+outstream.release()
 readfile()
-
-Encode :
-+ zigzac
-+ reorder
-+ huffman
 

@@ -113,7 +113,7 @@ def doHuffman(prob):
 def entropyCoding(cb, a):
 	return [cb[x] for x in a] 	
 
-def huffmanDecode(h, w, pix, codebook_residual, codebook_motion, compressed_i, idx_compressed):
+def huffmanDecode(h, w, pix, codebook_residual, compressed_i, idx_compressed):
 	"""
 		one block pix * pix per time
 
@@ -121,25 +121,24 @@ def huffmanDecode(h, w, pix, codebook_residual, codebook_motion, compressed_i, i
 	"""
 	compressed = compressed_i[idx_compressed:]
 	cur = ''
-	res = [[], []]
-	idx = 0
-	codebook = codebook_motion
+	# res = [[], []]
+	res = []
+	# idx = 0
+	codebook = codebook_residual
 	firsttime = True
 	for x in compressed:
 	    cur += x
 	    if cur in codebook:
-	        res[idx].append(codebook[cur])
+	        res.append(codebook[cur])
 	        cur = ''
-	    if firsttime and len(res[idx]) == h*w/(pix*pix):
-	    	idx = 1
-	    	firsttime = False
-	    	codebook = codebook_residual
-	    print res
-	    if not firsttime and res[idx][-1][2] == 1:
-	    	break
-	    idx_compressed += 1
 
-   	return resi, res[0], res[1]
+	    idx_compressed += 1
+	    print	res[-1:][0]
+
+	    if not firsttime and res[-1][2] == 1:
+	    	break
+
+   	return idx_compressed, res
 
 def keyToStr(a):
     res = {}

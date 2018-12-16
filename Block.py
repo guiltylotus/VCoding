@@ -87,7 +87,6 @@ class Block():
         """
             return quantisation of 'a' matrix with QB = 10
         """ 
-        print ('eee' , np.floor(a/qb))
         return np.floor(a/qb)
 
     def rescale(self, a, qb = 20):

@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from Block import *
-from Nghia import *
+from Encode import *
 import json
 from ast import literal_eval as make_tuple
 # set width and height of video
@@ -27,20 +27,14 @@ prob_motion = {}
 #     """
 #     return a * qb
 compressed = '' 
-def current_reference(Y1,Y2,cout, pixel, prob_residual, prob_motion, codebook_residual = None, codebook_motion = None):
+def current_reference(Y1,cout, pixel, prob_residual, codebook_residual = None, codebook_motion = None):
 
     _block = Block()
     global compressed
     # convert uint8 to int32
     Y1 = np.int32(Y1)
-    Y2 = np.int32(Y2)
 
-    Mvector, Ry = _block.Intercoding(Y1,Y2,pixel,macro)
-    for vec in Mvector:
-        prob_motion[vec] = 0 if vec not in prob_motion else prob_motion[vec] + 1
-    if codebook_motion:
-        compressed += "".join(entropyCoding(codebook_motion, Mvector)) 
-    DCT_Ry = _block.DCT(Ry,pixel)
+    DCT_Ry = _block.DCT(Y1,pixel)
 
     Rys = blockshaped(DCT_Ry, pixel, pixel)
 
@@ -60,9 +54,8 @@ def current_reference(Y1,Y2,cout, pixel, prob_residual, prob_motion, codebook_re
         IRys[i] = Dequantised_Ry
     IRys = mergeshaped(IRys, height, width)
     IDCT_Ry = _block.IDCT(IRys,pixel)
-    D_img = _block.Reconstruct(Y2,IDCT_Ry, Mvector,pixel)
     
-    return D_img
+    return IDCT_Ry
 
 def encode():
     pass
@@ -99,7 +92,7 @@ def readfile():
         V1 = Y1.copy()
         if done_prob:
             codebook_residual = doHuffman(prob_residual)
-            codebook_motion = doHuffman(prob_motion)
+            # codebook_motion = doHuffman(prob_motion)
         while True:
             cout += 1
             if cout < 2:
@@ -119,9 +112,9 @@ def readfile():
             Y2 = Y.copy()
             U2 = U.copy()
             V2 = V.copy()
-            Y1 = current_reference(Y2, Y1, cout, pix, prob_residual, prob_motion, codebook_residual, codebook_motion)
-            U1 = current_reference(U2, U1, cout, pix, prob_residual, prob_motion, codebook_residual, codebook_motion)
-            V1 = current_reference(V2, V1, cout, pix, prob_residual, prob_motion, codebook_residual, codebook_motion)
+            Y1 = current_reference(Y2, cout, pix, prob_residual, codebook_residual, codebook_motion)
+            # U1 = current_reference(U2, U1, cout, pix, prob_residual, prob_motion, codebook_residual, codebook_motion)
+            # V1 = current_reference(V2, V1, cout, pix, prob_residual, prob_motion, codebook_residual, codebook_motion)
             # cv2.imwrite('image' + str(cout) + ".png", Y1)
             # if done_prob:
             #     writefile(Y1, U1, V1, outstream)
@@ -132,11 +125,8 @@ def readfile():
     with open('huffman_residual.txt', 'w') as f:
         json.dump(swapDict(codebook_residual), f)
 
-    with open('huffman_motion.txt', 'w') as f:
-        json.dump(swapDict(codebook_motion), f)
 
-
-def decodeFrame(ref, Mvector, residual):
+def decodeFrame(ref, residual):
     blocks = []
     for resi in residual:
         inverse_reordered_Ry = inverseReorder(tuple(resi))
@@ -147,16 +137,12 @@ def decodeFrame(ref, Mvector, residual):
 
     IRys = mergeshaped(np.array(blocks), height, width)
     IDCT_Ry = _block.IDCT(IRys,pix)
-    D_img = _block.Reconstruct(ref,IDCT_Ry, Mvector,pix)
     
-    return D_img
+    return IDCT_Ry
 
 def decode(height, width, pix):
     with open('huffman_residual.txt','r') as f:
         codebook_residual = json.load(f)
-
-    with open('huffman_motion.txt','r') as f:
-        codebook_motion = json.load(f)
 
     with open('compressed.txt','r') as f:
         compressed = f.read()
@@ -167,14 +153,10 @@ def decode(height, width, pix):
     Ur = Yr.copy()
     Vr = Yr.copy()
     while idx < len(compressed):
-        idx, Mvector, residual = huffmanDecode(height, width, pix, codebook_residual, codebook_motion, compressed, idx)
-        Y = decodeFrame(Yr, Mvector, residual)
-        idx, Mvector, residual = huffmanDecode(height, width, pix, codebook_residual, codebook_motion, compressed, idx)
-        U = decodeFrame(Ur, Mvector, residual)
-        idx, Mvector, residual = huffmanDecode(height, width, pix, codebook_residual, codebook_motion, compressed, idx)
-        V = decodeFrame(Vr, Mvector, residual)
-        writefile(Y, U, V, outstream)
-        Yr, Ur, Vr = Y, U, V       
+        idx, residual = huffmanDecode(height, width, pix, codebook_residual, compressed, idx)
+        Y = decodeFrame(Yr, residual)
+        writefile(Y, Ur, Vr, outstream)
+        Yr, Ur, Vr = Y, Ur, Vr
 
 
 # Read file
